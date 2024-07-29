@@ -17,7 +17,7 @@ namespace rpc {
     Float,
     String,
     RGBColor,
-
+    Vector,
     SIZE,
     INVALID
   };

@@ -113,7 +113,7 @@ void ASceneCaptureSensor::SetExposureCompensation(float Compensation)
 #if PLATFORM_LINUX
   // Looks like Windows and Linux have different outputs with the
   // same exposure compensation, this fixes it.
-  CaptureComponent2D->PostProcessSettings.AutoExposureBias = Compensation + 0.75f;
+  CaptureComponent2D->PostProcessSettings.AutoExposureBias = Compensation + 0.0f;
 #else
   CaptureComponent2D->PostProcessSettings.AutoExposureBias = Compensation;
 #endif
@@ -153,6 +153,18 @@ void ASceneCaptureSensor::SetAperture(float Aperture)
 {
   check(CaptureComponent2D != nullptr);
   CaptureComponent2D->PostProcessSettings.DepthOfFieldFstop = Aperture;
+}
+
+void ASceneCaptureSensor::SetSensorWidth(float Width)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.DepthOfFieldSensorWidth = Width;
+}
+
+float ASceneCaptureSensor::GetSensorWidth() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.DepthOfFieldSensorWidth;
 }
 
 float ASceneCaptureSensor::GetAperture() const
@@ -449,6 +461,114 @@ float ASceneCaptureSensor::GetChromAberrOffset() const
   return CaptureComponent2D->PostProcessSettings.ChromaticAberrationStartOffset;
 }
 
+void ASceneCaptureSensor::SetColorSaturation(FVector4 ColorSaturation)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.ColorSaturation = ColorSaturation;
+}
+
+FVector4 ASceneCaptureSensor::GetColorSaturation() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.ColorSaturation;
+}
+
+void ASceneCaptureSensor::SetColorContrast(FVector4 ColorContrast)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.ColorContrast = ColorContrast;
+}
+
+FVector4 ASceneCaptureSensor::GetColorContrast() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.ColorContrast;
+}
+
+void ASceneCaptureSensor::SetColorGamma(FVector4 ColorGamma)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.ColorGamma = ColorGamma;
+}
+
+FVector4 ASceneCaptureSensor::GetColorGamma() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.ColorGamma;
+}
+
+void ASceneCaptureSensor::SetHighlightsGamma(FVector4 HighlightsGamma)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.ColorGammaHighlights = HighlightsGamma;
+}
+
+FVector4 ASceneCaptureSensor::GetHighlightsGamma() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.ColorGammaHighlights;
+}
+
+void ASceneCaptureSensor::SetToneCurveAmount(float ToneCurveAmount)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.ToneCurveAmount = ToneCurveAmount;
+}
+
+float ASceneCaptureSensor::GetToneCurveAmount() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.ToneCurveAmount;
+}
+
+void ASceneCaptureSensor::SetSceneColorTint(FVector4 SceneColorTint)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.SceneColorTint = SceneColorTint;
+}
+
+FVector4 ASceneCaptureSensor::GetSceneColorTint() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.SceneColorTint;
+}
+
+void ASceneCaptureSensor::SetVignetteIntensity(float VignetteIntensity)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.VignetteIntensity = VignetteIntensity;
+}
+
+float ASceneCaptureSensor::GetVignetteIntensity() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.VignetteIntensity;
+}
+
+void ASceneCaptureSensor::SetHighlightContrastScale(float HighlightContrastScale)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.LocalExposureHighlightContrastScale = HighlightContrastScale;
+}
+
+float ASceneCaptureSensor::GetHighlightContrastScale() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.LocalExposureHighlightContrastScale;
+}
+
+void ASceneCaptureSensor::SetShadowContrastScale(float ShadowContrastScale)
+{
+  check(CaptureComponent2D != nullptr);
+  CaptureComponent2D->PostProcessSettings.LocalExposureShadowContrastScale = ShadowContrastScale;
+}
+
+float ASceneCaptureSensor::GetShadowContrastScale() const
+{
+  check(CaptureComponent2D != nullptr);
+  return CaptureComponent2D->PostProcessSettings.LocalExposureShadowContrastScale;
+}
+
 void ASceneCaptureSensor::UpdatePostProcessConfig(
     FPostProcessConfig& InOutPostProcessConfig)
 {
@@ -572,7 +692,7 @@ void ASceneCaptureSensor::BeginPlay()
   // Call derived classes to set up their things.
   SetUpSceneCaptureComponent(*CaptureComponent2D);
 
-  CaptureComponent2D->CaptureSource = ESceneCaptureSource::SCS_FinalColorLDR;
+  CaptureComponent2D->CaptureSource = ESceneCaptureSource::SCS_FinalToneCurveHDR;
 
   CaptureComponent2D->UpdateContent();
   CaptureComponent2D->Activate();
@@ -727,8 +847,48 @@ namespace SceneCaptureSensor_local_ns {
   {
     auto &PostProcessSettings = CaptureComponent2D.PostProcessSettings;
 
+    PostProcessSettings.bOverride_AutoExposureMethod = true;
+    PostProcessSettings.bOverride_AutoExposureBias = true;
+    PostProcessSettings.bOverride_CameraShutterSpeed = true;
+    PostProcessSettings.bOverride_CameraISO = true;
+    PostProcessSettings.bOverride_DepthOfFieldFstop = true;
+    PostProcessSettings.bOverride_DepthOfFieldFocalDistance = true;
+    PostProcessSettings.bOverride_DepthOfFieldDepthBlurAmount = true;
+    PostProcessSettings.bOverride_DepthOfFieldDepthBlurRadius = true;
+    PostProcessSettings.bOverride_DepthOfFieldMinFstop = true;
+    PostProcessSettings.bOverride_DepthOfFieldBladeCount = true;
+    PostProcessSettings.bOverride_DepthOfFieldSensorWidth = true;
+    PostProcessSettings.bOverride_FilmSlope = true;
+    PostProcessSettings.bOverride_FilmToe = true;
+    PostProcessSettings.bOverride_FilmShoulder = true;
+    PostProcessSettings.bOverride_FilmBlackClip = true;
+    PostProcessSettings.bOverride_FilmWhiteClip = true;
+    PostProcessSettings.bOverride_AutoExposureMinBrightness = true;
+    PostProcessSettings.bOverride_AutoExposureMaxBrightness = true;
+    PostProcessSettings.bOverride_AutoExposureSpeedDown = true;
+    PostProcessSettings.bOverride_AutoExposureSpeedUp = true;
+    PostProcessSettings.bOverride_AutoExposureCalibrationConstant_DEPRECATED = true;
+    PostProcessSettings.bOverride_TemperatureType = true;
+    PostProcessSettings.bOverride_MotionBlurAmount = true;
+    PostProcessSettings.bOverride_MotionBlurMax = true;
+    PostProcessSettings.bOverride_MotionBlurPerObjectSize = true;
+    PostProcessSettings.bOverride_LensFlareIntensity = true;
+    PostProcessSettings.bOverride_BloomIntensity = true;
+    PostProcessSettings.bOverride_WhiteTemp = true;
+    PostProcessSettings.bOverride_WhiteTint = true;
+    PostProcessSettings.bOverride_SceneFringeIntensity = true;
+    PostProcessSettings.bOverride_ChromaticAberrationStartOffset = true;
+    PostProcessSettings.bOverride_ColorSaturation = true;
+    PostProcessSettings.bOverride_ColorContrast = true;
+    PostProcessSettings.bOverride_ColorGamma = true;
+    PostProcessSettings.bOverride_ColorGammaHighlights = true;
+    PostProcessSettings.bOverride_ToneCurveAmount = true;
+    PostProcessSettings.bOverride_SceneColorTint = true;
+    PostProcessSettings.bOverride_VignetteIntensity = true;
+    PostProcessSettings.bOverride_LocalExposureHighlightContrastScale = true;
+    PostProcessSettings.bOverride_LocalExposureShadowContrastScale = true;
+
     CaptureComponent2D.bUseRayTracingIfEnabled = true;
-    // Lumen
     PostProcessSettings.bOverride_DynamicGlobalIlluminationMethod = true;
     PostProcessSettings.DynamicGlobalIlluminationMethod = EDynamicGlobalIlluminationMethod::Lumen;
     PostProcessSettings.bOverride_LumenSceneLightingQuality = true;
@@ -750,7 +910,7 @@ namespace SceneCaptureSensor_local_ns {
     PostProcessSettings.bOverride_LumenDiffuseColorBoost = true;
     PostProcessSettings.LumenDiffuseColorBoost = 1.0f;
     PostProcessSettings.bOverride_LumenSkylightLeaking = true;
-    PostProcessSettings.LumenSkylightLeaking = 0.0f;
+    PostProcessSettings.LumenSkylightLeaking = 0.1f;
     PostProcessSettings.bOverride_LumenFullSkylightLeakingDistance = true;
     PostProcessSettings.LumenFullSkylightLeakingDistance = 1000.0f;
     PostProcessSettings.bOverride_ReflectionMethod = true;
@@ -760,9 +920,9 @@ namespace SceneCaptureSensor_local_ns {
     PostProcessSettings.bOverride_LumenRayLightingMode = true;
     PostProcessSettings.LumenRayLightingMode = ELumenRayLightingModeOverride::Default;
     PostProcessSettings.bOverride_LumenFrontLayerTranslucencyReflections = true;
-    PostProcessSettings.LumenFrontLayerTranslucencyReflections = false;
+    PostProcessSettings.LumenFrontLayerTranslucencyReflections = true;
     PostProcessSettings.bOverride_LumenMaxReflectionBounces = true;
-    PostProcessSettings.LumenMaxReflectionBounces = 1;
+    PostProcessSettings.LumenMaxReflectionBounces = 3;
   }
 
 } // namespace SceneCaptureSensor_local_ns

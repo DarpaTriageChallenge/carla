@@ -227,6 +227,12 @@ public:
   float GetAperture() const;
 
   UFUNCTION(BlueprintCallable)
+  void SetSensorWidth(float Width);
+
+  UFUNCTION(BlueprintCallable)
+  float GetSensorWidth() const;
+
+  UFUNCTION(BlueprintCallable)
   void SetFocalDistance(float Distance);
 
   UFUNCTION(BlueprintCallable)
@@ -369,6 +375,60 @@ public:
 
   UFUNCTION(BlueprintCallable)
   float GetChromAberrOffset() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetColorSaturation(FVector4 ColorSaturation);
+
+  UFUNCTION(BlueprintCallable)
+  FVector4 GetColorSaturation() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetColorContrast(FVector4 ColorContrast);
+
+  UFUNCTION(BlueprintCallable)
+  FVector4 GetColorContrast() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetColorGamma(FVector4 ColorGamma);
+
+  UFUNCTION(BlueprintCallable)
+  FVector4 GetColorGamma() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetHighlightsGamma(FVector4 HighlightsGamma);
+
+  UFUNCTION(BlueprintCallable)
+  FVector4 GetHighlightsGamma() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetToneCurveAmount(float ToneCurveAmount);
+
+  UFUNCTION(BlueprintCallable)
+  float GetToneCurveAmount() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetSceneColorTint(FVector4 SceneColorTint);
+
+  UFUNCTION(BlueprintCallable)
+  FVector4 GetSceneColorTint() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetVignetteIntensity(float VignetteIntensity);
+
+  UFUNCTION(BlueprintCallable)
+  float GetVignetteIntensity() const;
+  
+  UFUNCTION(BlueprintCallable)
+  void SetHighlightContrastScale(float HighlightContrastScale);
+
+  UFUNCTION(BlueprintCallable)
+  float GetHighlightContrastScale() const;
+
+  UFUNCTION(BlueprintCallable)
+  void SetShadowContrastScale(float ShadowContrastScale);
+
+  UFUNCTION(BlueprintCallable)
+  float GetShadowContrastScale() const;
 
   /// Use for debugging purposes only.
   UFUNCTION(BlueprintCallable)
