@@ -408,19 +408,19 @@ void UActorBlueprintFunctionLibrary::MakeCameraDefinition(
     FActorVariation MBIntesity;
     MBIntesity.Id = TEXT("motion_blur_intensity");
     MBIntesity.Type = EActorAttributeType::Float;
-    MBIntesity.RecommendedValues = { TEXT("0.45") };
+    MBIntesity.RecommendedValues = { TEXT("0.5") };
     MBIntesity.bRestrictToRecommended = false;
 
     FActorVariation MBMaxDistortion;
     MBMaxDistortion.Id = TEXT("motion_blur_max_distortion");
     MBMaxDistortion.Type = EActorAttributeType::Float;
-    MBMaxDistortion.RecommendedValues = { TEXT("0.35") };
+    MBMaxDistortion.RecommendedValues = { TEXT("5.0") };
     MBMaxDistortion.bRestrictToRecommended = false;
 
     FActorVariation MBMinObjectScreenSize;
     MBMinObjectScreenSize.Id = TEXT("motion_blur_min_object_screen_size");
     MBMinObjectScreenSize.Type = EActorAttributeType::Float;
-    MBMinObjectScreenSize.RecommendedValues = { TEXT("0.1") };
+    MBMinObjectScreenSize.RecommendedValues = { TEXT("0.0") };
     MBMinObjectScreenSize.bRestrictToRecommended = false;
 
     // Lens Flare
@@ -644,11 +644,11 @@ void UActorBlueprintFunctionLibrary::MakeCameraDefinition(
     ChromaticOffset.Type = EActorAttributeType::Float;
     ChromaticOffset.RecommendedValues = { TEXT("0.0") };
     ChromaticOffset.bRestrictToRecommended = false;
-
+    
     FActorVariation ColorSaturation;
     ColorSaturation.Id = TEXT("color_saturation");
-    ColorSaturation.Type = EActorAttributeType::Float;
-    ColorSaturation.RecommendedValues = { ColorToFString(FLinearColor(0.45f,0.45f,0.45f).ToFColorSRGB()) };
+    ColorSaturation.Type = EActorAttributeType::RGBColor;
+    ColorSaturation.RecommendedValues = { ColorToFString(FLinearColor(0.45f, 0.45f, 0.45f).ToFColorSRGB()) };
     ColorSaturation.bRestrictToRecommended = false;
 
     FActorVariation ColorContrast;
@@ -665,7 +665,7 @@ void UActorBlueprintFunctionLibrary::MakeCameraDefinition(
 
     FActorVariation HighlightsGamma;
     HighlightsGamma.Id = TEXT("highlights_gamma");
-    HighlightsGamma.Type = EActorAttributeType::Float;
+    HighlightsGamma.Type = EActorAttributeType::RGBColor;
     HighlightsGamma.RecommendedValues = { ColorToFString(FLinearColor(0.5f, 0.5f, 0.5f).ToFColorSRGB()) };
     HighlightsGamma.bRestrictToRecommended = false;
 
@@ -725,6 +725,7 @@ void UActorBlueprintFunctionLibrary::MakeCameraDefinition(
       ColorSaturation,
       //ColorContrast,
       //ColorGamma,
+      HighlightsGamma,
       ToneCurveAmount,
       SceneColorTint,
       VignetteIntensity});
@@ -1694,9 +1695,9 @@ void UActorBlueprintFunctionLibrary::SetCamera(
     Camera->SetMotionBlurMaxDistortion(
         RetrieveActorAttributeToFloat("motion_blur_max_distortion", Description.Variations, 5.0f));
     Camera->SetMotionBlurMinObjectScreenSize(
-        RetrieveActorAttributeToFloat("motion_blur_min_object_screen_size", Description.Variations, 0.5f));
+        RetrieveActorAttributeToFloat("motion_blur_min_object_screen_size", Description.Variations, 5.0f));
     Camera->SetLensFlareIntensity(
-        RetrieveActorAttributeToFloat("lens_flare_intensity", Description.Variations, 0.2f));
+        RetrieveActorAttributeToFloat("lens_flare_intensity", Description.Variations, 0.0f));
     Camera->SetBloomIntensity(
         RetrieveActorAttributeToFloat("bloom_intensity", Description.Variations, 0.0f));
     // Exposure, histogram mode by default
@@ -1766,7 +1767,7 @@ void UActorBlueprintFunctionLibrary::SetCamera(
     Camera->SetChromAberrOffset(
         RetrieveActorAttributeToFloat("chromatic_aberration_offset", Description.Variations, 0.0f));
   
-    auto ColorSaturation = RetrieveActorAttributeToColor("color_saturation", Description.Variations, FLinearColor(0.45f,0.45f,0.45f).ToFColorSRGB());
+    auto ColorSaturation = FLinearColor(RetrieveActorAttributeToColor("color_saturation", Description.Variations, FLinearColor(0.45f, 0.45f, 0.45f).ToFColorSRGB()));
     Camera->SetColorSaturation(
         FVector4(ColorSaturation.R, ColorSaturation.G, ColorSaturation.B, ColorSaturation.A));
 
