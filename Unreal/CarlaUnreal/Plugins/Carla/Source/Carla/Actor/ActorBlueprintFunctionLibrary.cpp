@@ -170,6 +170,15 @@ static FString ColorToFString(const FColor &Color)
       FString::FromInt(Color.B));
 }
 
+static FString VectorToFString(const FVector &TextVector)
+{
+  return JoinStrings(
+      TEXT(","),
+      FString::SanitizeFloat(TextVector.X),
+      FString::SanitizeFloat(TextVector.Y),
+      FString::SanitizeFloat(TextVector.Z));
+}
+
 /// ============================================================================
 /// -- Actor definition validators ---------------------------------------------
 /// ============================================================================

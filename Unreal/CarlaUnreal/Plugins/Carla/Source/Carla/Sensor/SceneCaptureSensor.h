@@ -407,10 +407,10 @@ public:
   float GetToneCurveAmount() const;
 
   UFUNCTION(BlueprintCallable)
-  void SetSceneColorTint(FVector4 SceneColorTint);
+  void SetSceneColorTint(FLinearColor SceneColorTint);
 
   UFUNCTION(BlueprintCallable)
-  FVector4 GetSceneColorTint() const;
+  FLinearColor GetSceneColorTint() const;
 
   UFUNCTION(BlueprintCallable)
   void SetVignetteIntensity(float VignetteIntensity);
