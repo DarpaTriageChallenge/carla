@@ -42,7 +42,7 @@ then
     sudo apt-get install retry
 fi
 retry --until=success --times=12 --delay=300 -- sudo apt-get update
-retry --until=success --times=12 --delay=300 -- sudo apt-get install build-essential make ninja-build libvulkan1 python3 python3-dev python3-pip libpng-dev libtiff5-dev libjpeg-dev tzdata sed curl libtool rsync libxml2-dev git git-lfs
+retry --until=success --times=12 --delay=300 -- sudo apt-get install -y build-essential make ninja-build libvulkan1 python3 python3-dev python3-pip libpng-dev libtiff5-dev libjpeg-dev tzdata sed curl libtool rsync libxml2-dev git git-lfs
 echo "Ubuntu Pacakges Installed..."
 
 echo "Installing Python Pacakges..."
