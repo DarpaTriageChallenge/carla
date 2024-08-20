@@ -197,6 +197,14 @@ void export_actor() {
       .def(self_ns::str(self_ns::self))
   ;
 
+  class_<cc::Multirotor, bases<cc::Actor>, boost::noncopyable, std::shared_ptr<cc::Multirotor>>("Multirotor",
+      no_init)
+      .def("apply_control", &cc::Multirotor::ApplyControl, (arg("control")))
+      .def("apply_physics_control", &cc::Multirotor::ApplyPhysicsControl, (arg("physics_control")))
+      .def("get_control", &cc::Multirotor::GetControl)
+      .def("get_physics_control", CONST_CALL_WITHOUT_GIL(cc::Multirotor, GetPhysicsControl))
+  ;
+
   class_<cc::Walker, bases<cc::Actor>, boost::noncopyable, std::shared_ptr<cc::Walker>>("Walker", no_init)
       .def("apply_control", &ApplyControl<cr::WalkerControl>, (arg("control")))
       .def("get_control", &cc::Walker::GetWalkerControl)

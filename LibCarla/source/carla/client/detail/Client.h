@@ -23,6 +23,8 @@
 #include "carla/rpc/LightState.h"
 #include "carla/rpc/MapInfo.h"
 #include "carla/rpc/MapLayer.h"
+#include "carla/rpc/MultirotorControl.h"
+#include "carla/rpc/MultirotorPhysicsControl.h"
 #include "carla/rpc/OpendriveGenerationParameters.h"
 #include "carla/rpc/TrafficLightState.h"
 #include "carla/rpc/VehicleDoor.h"
@@ -278,6 +280,18 @@ namespace detail {
     void ApplyAckermannControllerSettings(
         rpc::ActorId vehicle,
         const rpc::AckermannControllerSettings &settings);
+
+    void ApplyControlToMultirotor(
+        rpc::ActorId multirotor,
+        const rpc::MultirotorControl &control);
+
+    void ApplyPhysicsControlToMultirotor(
+        rpc::ActorId multirotor,
+        const rpc::MultirotorPhysicsControl &control);
+
+    rpc::MultirotorControl GetMultirotorControl(rpc::ActorId multirotor) const;
+
+    rpc::MultirotorPhysicsControl GetMultirotorPhysicsControl(rpc::ActorId multirotor) const;
 
     void EnableCarSim(
         rpc::ActorId vehicle,

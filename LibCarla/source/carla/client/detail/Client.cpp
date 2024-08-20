@@ -452,6 +452,26 @@ namespace detail {
     _pimpl->AsyncCall("apply_control_to_vehicle", vehicle, control);
   }
 
+  void Client::ApplyControlToMultirotor(rpc::ActorId multirotor, const rpc::MultirotorControl &control) {
+    _pimpl->AsyncCall("apply_control_to_multirotor", multirotor, control);
+  }
+
+  void Client::ApplyPhysicsControlToMultirotor(rpc::ActorId multirotor, const rpc::MultirotorPhysicsControl &control)
+  {
+    (void)multirotor;
+    (void)control;
+  }
+
+  rpc::MultirotorControl Client::GetMultirotorControl(rpc::ActorId multirotor) const
+  {
+    return _pimpl->CallAndWait<carla::rpc::MultirotorControl>("get_multirotor_control", multirotor);
+  }
+
+  rpc::MultirotorPhysicsControl Client::GetMultirotorPhysicsControl(rpc::ActorId multirotor) const
+  {
+    return _pimpl->CallAndWait<carla::rpc::MultirotorPhysicsControl>("get_multirotor_physics_control", multirotor);
+  }
+
   void Client::ApplyAckermannControlToVehicle(rpc::ActorId vehicle, const rpc::VehicleAckermannControl &control) {
     _pimpl->AsyncCall("apply_ackermann_control_to_vehicle", vehicle, control);
   }

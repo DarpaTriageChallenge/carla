@@ -9,6 +9,7 @@
 #include "carla/Logging.h"
 #include "carla/StringUtil.h"
 #include "carla/client/Actor.h"
+#include "carla/client/Multirotor.h"
 #include "carla/client/LaneInvasionSensor.h"
 #include "carla/client/ServerSideSensor.h"
 #ifdef RSS_ENABLED
@@ -93,6 +94,8 @@ namespace detail {
       return MakeActorImpl<TrafficSign>(std::move(init), gc);
     } else if (description.description.id == "controller.ai.walker") {
       return MakeActorImpl<WalkerAIController>(std::move(init), gc);
+    } else if (StringUtil::StartsWith(description.description.id, "multirotor.")) {
+      return MakeActorImpl<Multirotor>(std::move(init), gc);
     }
     return MakeActorImpl<Actor>(std::move(init), gc);
   }

@@ -34,6 +34,7 @@ public:
     TrafficLight,
     TrafficSign,
     Sensor,
+    Multirotor,
     INVALID
   };
 
@@ -343,6 +344,29 @@ public:
     return ECarlaServerResponse::ActorTypeMismatch;
   }
 
+  // Multirotor functions
+
+  virtual ECarlaServerResponse GetMultirotorControl(FMultirotorControl&)
+  {
+    return ECarlaServerResponse::ActorTypeMismatch;
+  }
+
+  virtual ECarlaServerResponse ApplyControlToMultirotor(
+      const FMultirotorControl&, const EVehicleInputPriority&)
+  {
+    return ECarlaServerResponse::ActorTypeMismatch;
+  }
+
+  virtual ECarlaServerResponse GetMultirotorPhysicsControl(FMultirotorPhysicsControl&)
+  {
+    return ECarlaServerResponse::ActorTypeMismatch;
+  }
+
+  virtual ECarlaServerResponse ApplyMultirotorPhysicsControl(const FMultirotorPhysicsControl&)
+  {
+    return ECarlaServerResponse::ActorTypeMismatch;
+  }
+
   // Traffic light functions
 
   virtual ECarlaServerResponse SetTrafficLightState(const ETrafficLightState&)
@@ -616,6 +640,29 @@ public:
   virtual ECarlaServerResponse GetPoseFromAnimation();
 
   virtual ECarlaServerResponse SetActorDead();
+};
+
+class FMultirotorActor : public FCarlaActor
+{
+public:
+  FMultirotorActor(
+      IdType ActorId,
+      AActor* Actor,
+      TSharedPtr<const FActorInfo> Info,
+      carla::rpc::ActorState InState,
+      UWorld* World);
+
+  virtual ECarlaServerResponse GetMultirotorPhysicsControl(FMultirotorPhysicsControl& PhysicsControl) final;
+
+  virtual ECarlaServerResponse ApplyMultirotorPhysicsControl(
+      const FMultirotorPhysicsControl& PhysicsControl) final;
+
+  virtual ECarlaServerResponse SetActorSimulatePhysics(bool bSimulatePhysics) final;
+
+  virtual ECarlaServerResponse ApplyControlToMultirotor(
+      const FMultirotorControl&, const EVehicleInputPriority&) final;
+
+  virtual ECarlaServerResponse GetMultirotorControl(FMultirotorControl&) final;
 };
 
 class FOtherActor : public FCarlaActor

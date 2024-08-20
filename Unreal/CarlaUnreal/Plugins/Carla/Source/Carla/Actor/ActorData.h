@@ -16,6 +16,8 @@
 #include "Vehicle/VehiclePhysicsControl.h"
 #include "Carla/Sensor/DataStream.h"
 #include "Carla/Traffic/TrafficLightState.h"
+#include "Carla/Multirotor/MultirotorControl.h"
+#include "Carla/Multirotor/MultirotorPhysicsControl.h"
 
 #include <compiler/disable-ue4-macros.h>
 #include <carla/rpc/WalkerControl.h>
@@ -137,4 +139,18 @@ public:
   virtual void RecordActorData(FCarlaActor* CarlaActor, UCarlaEpisode* CarlaEpisode) override;
 
   virtual void RestoreActorData(FCarlaActor* CarlaActor, UCarlaEpisode* CarlaEpisode) override;
+};
+
+
+class FMultirotorData : public FActorData
+{
+public:
+
+    FMultirotorPhysicsControl PhysicsControl;
+
+    FMultirotorControl Control;
+
+    virtual void RecordActorData(FCarlaActor* CarlaActor, UCarlaEpisode* CarlaEpisode) override;
+
+    virtual void RestoreActorData(FCarlaActor* CarlaActor, UCarlaEpisode* CarlaEpisode) override;
 };
