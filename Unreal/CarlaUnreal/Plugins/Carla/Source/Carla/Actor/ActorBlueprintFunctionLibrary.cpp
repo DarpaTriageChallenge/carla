@@ -1332,6 +1332,12 @@ void UActorBlueprintFunctionLibrary::MakeMultirotorDefinition(
     EActorAttributeType::Int,
     FString::FromInt(Parameters.Generation)});
   Success = CheckActorDefinition(Definition);
+
+  Definition.Attributes.Emplace(FActorAttribute{
+    TEXT("control_type"),
+    EActorAttributeType::String,
+    "multirotor"});
+  Success = CheckActorDefinition(Definition);
 }
 
 void UActorBlueprintFunctionLibrary::MakePedestrianDefinition(

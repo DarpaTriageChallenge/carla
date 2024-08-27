@@ -156,6 +156,14 @@ bool UActorDispatcher::DestroyActor(FCarlaActor::IdType ActorId)
     }
   }
 
+  #ifdef WITH_ROS2
+  auto ROS2 = carla::ros2::ROS2::GetInstance();
+  if (ROS2->IsEnabled())
+  {
+    ROS2->RemoveActorCallback(reinterpret_cast<void *>(Actor));
+  }
+  #endif
+
   Registry.Deregister(ActorId);
 
   return true;
@@ -207,9 +215,19 @@ FCarlaActor* UActorDispatcher::RegisterActor(
       // vehicle controller for hero
       for (auto &&Attr : Description.Variations)
       {
+        UE_LOG(LogCarla, Log, TEXT("UActorDispatcher::Actor Description Variations: '%s: %s'"), *(Attr.Key), *(Attr.Value.Value));
         if (Attr.Key == "role_name" && (Attr.Value.Value == "hero" || Attr.Value.Value == "ego"))
         {
-          ROS2->AddActorCallback(static_cast<void*>(&Actor), RosName, [RosName](void *Actor, carla::ros2::ROS2CallbackData Data) -> void
+          ROS2->AddVehicleActorCallback(static_cast<void*>(&Actor), RosName, [RosName](void *Actor, carla::ros2::ROS2VehicleCallbackData Data) -> void
+          {
+            AActor *UEActor = reinterpret_cast<AActor *>(Actor);
+            ActorROS2Handler Handler(UEActor, RosName);
+            boost::variant2::visit(Handler, Data);
+          });
+        }
+        if (Attr.Key == "control_type" && (Attr.Value.Value == "multirotor"))
+        {
+          ROS2->AddMultirotorActorCallback(static_cast<void*>(&Actor), RosName, [RosName](void *Actor, carla::ros2::ROS2MultirotorCallbackData Data) -> void
           {
             AActor *UEActor = reinterpret_cast<AActor *>(Actor);
             ActorROS2Handler Handler(UEActor, RosName);

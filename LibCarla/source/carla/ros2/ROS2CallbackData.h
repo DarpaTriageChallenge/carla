@@ -33,15 +33,22 @@ namespace ros2 {
     bool    manual_gear_shift;
   };
 
+  struct MultirotorControl
+  {
+    std::vector<float>   throttle;
+  };
+
     struct MessageControl
   {
     const char* message;
   };
 
-  using ROS2CallbackData = boost::variant2::variant<VehicleControl>;
+  using ROS2VehicleCallbackData = boost::variant2::variant<VehicleControl>;
+  using ROS2MultirotorCallbackData = boost::variant2::variant<MultirotorControl>;
   using ROS2MessageCallbackData = boost::variant2::variant<MessageControl>;
 
-  using ActorCallback = std::function<void(void *actor, ROS2CallbackData data)>;
+  using VehicleActorCallback = std::function<void(void *actor, ROS2VehicleCallbackData data)>;
+  using MultirotorActorCallback = std::function<void(void *actor, ROS2MultirotorCallbackData data)>;
   using ActorMessageCallback = std::function<void(void *actor, ROS2MessageCallbackData data)>;
   
 } // namespace ros2

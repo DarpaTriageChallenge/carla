@@ -1,14 +1,14 @@
 #define _GLIBCXX_USE_CXX11_ABI 0
 
-#include "CarlaSubscriberListener.h"
+#include "CarlaMultirotorSubscriberListener.h"
 #include <iostream>
 
 #include <fastdds/dds/subscriber/DataReader.hpp>
 #include <fastdds/dds/subscriber/DataReaderListener.hpp>
 #include <fastdds/dds/core/status/SubscriptionMatchedStatus.hpp>
 #include <fastdds/dds/subscriber/SampleInfo.hpp>
-#include "carla/ros2/types/CarlaEgoVehicleControl.h"
-#include "carla/ros2/subscribers/CarlaEgoVehicleControlSubscriber.h"
+#include "carla/ros2/types/CarlaMultirotorControl.h"
+#include "carla/ros2/subscribers/CarlaMultirotorControlSubscriber.h"
 #include "carla/ros2/ROS2CallbackData.h"
 
 namespace carla {
@@ -17,7 +17,7 @@ namespace ros2 {
   namespace efd = eprosima::fastdds::dds;
   using erc = eprosima::fastrtps::types::ReturnCode_t;
 
-    class CarlaSubscriberListenerImpl : public efd::DataReaderListener {
+    class CarlaMultirotorSubscriberListenerImpl : public efd::DataReaderListener {
       public:
       void on_subscription_matched(
               efd::DataReader* reader,
@@ -26,11 +26,11 @@ namespace ros2 {
 
       int _matched {0};
       bool _first_connected {false};
-      CarlaEgoVehicleControlSubscriber* _owner {nullptr};
-      carla_msgs::msg::CarlaEgoVehicleControl _message {};
+      CarlaMultirotorControlSubscriber* _owner {nullptr};
+      carla_msgs::msg::CarlaMultirotorControl _message {};
     };
 
-    void CarlaSubscriberListenerImpl::on_subscription_matched(efd::DataReader* reader, const efd::SubscriptionMatchedStatus& info)
+    void CarlaMultirotorSubscriberListenerImpl::on_subscription_matched(efd::DataReader* reader, const efd::SubscriptionMatchedStatus& info)
     {
       if (info.current_count_change == 1) {
           _matched = info.total_count;
@@ -46,19 +46,13 @@ namespace ros2 {
       }
     }
 
-    void CarlaSubscriberListenerImpl::on_data_available(efd::DataReader* reader)
+    void CarlaMultirotorSubscriberListenerImpl::on_data_available(efd::DataReader* reader)
     {
       efd::SampleInfo info;
       eprosima::fastrtps::types::ReturnCode_t rcode = reader->take_next_sample(&_message, &info);
       if (rcode == erc::ReturnCodeValue::RETCODE_OK) {
-        VehicleControl control;
+        MultirotorControl control;
         control.throttle = _message.throttle();
-        control.steer = _message.steer();
-        control.brake = _message.brake();
-        control.hand_brake = _message.hand_brake();
-        control.reverse = _message.reverse();
-        control.gear = _message.gear();
-        control.manual_gear_shift = _message.manual_gear_shift();
         _owner->ForwardMessage(control);
       }
       if (rcode == erc::ReturnCodeValue::RETCODE_ERROR) {
@@ -102,15 +96,15 @@ namespace ros2 {
       }
     }
 
-    void CarlaSubscriberListener::SetOwner(CarlaEgoVehicleControlSubscriber* owner) {
+    void CarlaMultirotorSubscriberListener::SetOwner(CarlaMultirotorControlSubscriber* owner) {
         _impl->_owner = owner;
     }
 
-    CarlaSubscriberListener::CarlaSubscriberListener(CarlaEgoVehicleControlSubscriber* owner) :
-    _impl(std::make_unique<CarlaSubscriberListenerImpl>()) {
+    CarlaMultirotorSubscriberListener::CarlaMultirotorSubscriberListener(CarlaMultirotorControlSubscriber* owner) :
+    _impl(std::make_unique<CarlaMultirotorSubscriberListenerImpl>()) {
         _impl->_owner = owner;
     }
 
-    CarlaSubscriberListener::~CarlaSubscriberListener() {}
+    CarlaMultirotorSubscriberListener::~CarlaMultirotorSubscriberListener() {}
 
 }}
