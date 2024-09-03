@@ -11,6 +11,7 @@
 #include "Carla/Actor/PedestrianParameters.h"
 #include "Carla/Actor/PropParameters.h"
 #include "Carla/Actor/VehicleParameters.h"
+#include "Carla/Actor/MultirotorParameters.h"
 #include "Carla/Actor/WaypointParameters.h"
 #include "Carla/Sensor/GnssSensor.h"
 #include "Carla/Sensor/Radar.h"
@@ -118,6 +119,17 @@ public:
   UFUNCTION(Category = "Carla Actor", BlueprintCallable)
   static void MakeVehicleDefinitions(
       const TArray<FVehicleParameters> &ParameterArray,
+      TArray<FActorDefinition> &Definitions);
+
+  UFUNCTION(Category = "Carla Actor", BlueprintCallable)
+  static void MakeMultirotorDefinition(
+      const FMultirotorParameters &Parameters,
+      bool &Success,
+      FActorDefinition &Definition);
+
+  UFUNCTION(Category = "Carla Actor", BlueprintCallable)
+  static void MakeMultirotorDefinitions(
+      const TArray<FMultirotorParameters> &ParameterArray,
       TArray<FActorDefinition> &Definitions);
 
   UFUNCTION(Category = "Carla Actor", BlueprintCallable)

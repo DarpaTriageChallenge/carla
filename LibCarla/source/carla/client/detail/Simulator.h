@@ -16,6 +16,7 @@
 #include "carla/client/Vehicle.h"
 #include "carla/client/Walker.h"
 #include "carla/client/World.h"
+#include "carla/client/Multirotor.h"
 #include "carla/client/WorldSnapshot.h"
 #include "carla/client/detail/ActorFactory.h"
 #include "carla/client/detail/Client.h"
@@ -484,6 +485,28 @@ namespace detail {
       const rpc::TextureFloatColor& Texture)
     {
       _client.ApplyTextureToActor(actor.GetId(), MaterialParameter, Texture);
+    }
+
+    /// @}
+    // =========================================================================
+    /// @name Operations with multirotors
+    // =========================================================================
+    /// @{
+
+    void ApplyControlToMultirotor(Multirotor &multirotor, const rpc::MultirotorControl &control) {
+        _client.ApplyControlToMultirotor(multirotor.GetId(), control);
+    }
+
+    rpc::MultirotorControl GetMultirotorControl(const Multirotor &multirotor) {
+        return _client.GetMultirotorControl(multirotor.GetId());
+    }
+
+    void ApplyPhysicsControlToMultirotor(Multirotor &multirotor, const rpc::MultirotorPhysicsControl &control) {
+        _client.ApplyPhysicsControlToMultirotor(multirotor.GetId(), control);
+    }
+
+    rpc::MultirotorPhysicsControl GetMultirotorPhysicsControl(const Multirotor& multirotor) {
+        return _client.GetMultirotorPhysicsControl(multirotor.GetId());
     }
 
     /// @}

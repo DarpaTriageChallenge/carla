@@ -39,6 +39,7 @@
 
 #include "subscribers/CarlaSubscriber.h"
 #include "subscribers/CarlaEgoVehicleControlSubscriber.h"
+#include "subscribers/CarlaMultirotorControlSubscriber.h"
 
 #include <vector>
 
@@ -82,18 +83,34 @@ void ROS2::Enable(bool enable) {
 void ROS2::SetFrame(uint64_t frame) {
   _frame = frame;
    //log_info("ROS2 new frame: ", _frame);
-   if (_controller) {
-    void* actor = _controller->GetVehicle();
-    if (_controller->IsAlive()) {
-      if (_controller->HasNewMessage()) {
-        auto it = _actor_callbacks.find(actor);
-        if (it != _actor_callbacks.end()) {
-          VehicleControl control = _controller->GetMessage();
+   if (_vehicleController) {
+    void* actor = _vehicleController->GetVehicle();
+    if (_vehicleController->IsAlive()) {
+      if (_vehicleController->HasNewMessage()) {
+        auto it = _vehicle_actor_callbacks.find(actor);
+        if (it != _vehicle_actor_callbacks.end()) {
+          VehicleControl control = _vehicleController->GetMessage();
           it->second(actor, control);
         }
       }
     } else {
-      RemoveActorCallback(actor);
+      RemoveVehicleActorCallback(actor);
+    }
+   }
+
+   for (auto multirotorControllerPair : _multirotorControllers) {
+    std::shared_ptr<CarlaMultirotorControlSubscriber> multirotorController = multirotorControllerPair.second;
+    void* actor = multirotorController->GetMultirotor();
+    if (multirotorController->IsAlive()) {
+      if (multirotorController->HasNewMessage()) {
+        auto it = _multirotor_actor_callbacks.find(actor);
+        if (it != _multirotor_actor_callbacks.end()) {
+          MultirotorControl control = multirotorController->GetMessage();
+          it->second(actor, control);
+        }
+      }
+    } else {
+      RemoveMultirotorActorCallback(actor);
     }
    }
 }
@@ -173,17 +190,42 @@ std::string ROS2::GetActorParentRosName(void *actor) {
     return std::string("");
 }
 
-void ROS2::AddActorCallback(void* actor, std::string ros_name, ActorCallback callback) {
-  _actor_callbacks.insert({actor, std::move(callback)});
+void ROS2::AddVehicleActorCallback(void* actor, std::string ros_name, VehicleActorCallback callback) {
+  _vehicle_actor_callbacks.insert({actor, std::move(callback)});
 
-  _controller.reset();
-  _controller = std::make_shared<CarlaEgoVehicleControlSubscriber>(actor, ros_name.c_str());
-  _controller->Init();
+  _vehicleController.reset();
+  _vehicleController = std::make_shared<CarlaEgoVehicleControlSubscriber>(actor, ros_name.c_str());
+  _vehicleController->Init();
 }
 
-void ROS2::RemoveActorCallback(void* actor) {
-  _controller.reset();
-  _actor_callbacks.erase(actor);
+void ROS2::AddMultirotorActorCallback(void* actor, std::string ros_name, MultirotorActorCallback callback) {
+  _multirotor_actor_callbacks.insert({actor, std::move(callback)});
+
+  auto newController = std::make_shared<CarlaMultirotorControlSubscriber>(actor, ros_name.c_str());
+  _multirotorControllers.insert({actor, newController});
+  newController->Init();
+}
+
+void ROS2::RemoveActorCallback(void* actor){
+  auto vIt = _vehicle_actor_callbacks.find(actor);
+  if (vIt != _vehicle_actor_callbacks.end()) {
+    RemoveVehicleActorCallback(actor);
+  }
+
+  auto mIt = _multirotor_actor_callbacks.find(actor);
+  if (mIt != _multirotor_actor_callbacks.end()) {
+    RemoveMultirotorActorCallback(actor);
+  }
+}
+
+void ROS2::RemoveVehicleActorCallback(void* actor) {
+  _vehicleController.reset();
+  _vehicle_actor_callbacks.erase(actor);
+}
+
+void ROS2::RemoveMultirotorActorCallback(void* actor) {
+  _multirotorControllers.erase(actor);
+  _multirotor_actor_callbacks.erase(actor);
 }
 
 std::pair<std::shared_ptr<CarlaPublisher>, std::shared_ptr<CarlaTransformPublisher>> ROS2::GetOrCreateSensor(int type, carla::streaming::detail::stream_id_type id, void* actor) {
@@ -884,7 +926,8 @@ void ROS2::Shutdown() {
     element.second.reset();
   }
   _clock_publisher.reset();
-  _controller.reset();
+  _vehicleController.reset();
+  _multirotorControllers.clear();
   _enabled = false;
 }
 

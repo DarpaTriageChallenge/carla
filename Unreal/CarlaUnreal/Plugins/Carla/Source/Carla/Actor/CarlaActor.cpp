@@ -106,6 +106,17 @@ FWalkerActor::FWalkerActor(
   Type = ActorType::Walker;
   ActorData = MakeShared<FWalkerData>();
 }
+FMultirotorActor::FMultirotorActor(
+    IdType ActorId,
+    AActor* Actor,
+    TSharedPtr<const FActorInfo> Info,
+    carla::rpc::ActorState InState,
+    UWorld* World)
+    : FCarlaActor(ActorId, Actor, Info, InState, World)
+{
+  Type = ActorType::Multirotor;
+  ActorData = MakeShared<FMultirotorData>();
+}
 FOtherActor::FOtherActor(
     IdType ActorId,
     AActor* Actor,
@@ -142,6 +153,9 @@ TSharedPtr<FCarlaActor> FCarlaActor::ConstructCarlaActor(
     break;
   case ActorType::Sensor:
     return MakeShared<FSensorActor>(ActorId, Actor, std::move(Info), InState, World);
+    break;
+  case ActorType::Multirotor:
+    return MakeShared<FMultirotorActor>(ActorId, Actor, std::move(Info), InState, World);
     break;
   default:
     return MakeShared<FOtherActor>(ActorId, Actor, std::move(Info), InState, World);
@@ -1475,6 +1489,105 @@ ECarlaServerResponse FWalkerActor::SetActorDead()
     }
     Walker->StartDeathLifeSpan();
     UE_LOG(LogCarla, Warning, TEXT("Walker starting life span by dead"));
+  }
+  return ECarlaServerResponse::Success;
+}
+
+// FMultirotorActor Functions ----------------
+
+ECarlaServerResponse FMultirotorActor::ApplyMultirotorPhysicsControl(
+      const FMultirotorPhysicsControl& PhysicsControl)
+{
+  if (IsDormant())
+  {
+    FMultirotorData* ActorData = GetActorData<FMultirotorData>();
+    ActorData->PhysicsControl = PhysicsControl;
+  }
+  else
+  {
+    auto Multirotor = Cast<AMultirotorPawn>(GetActor());
+    if (Multirotor == nullptr)
+    {
+      return ECarlaServerResponse::NotAVehicle;
+    }
+
+    Multirotor->ApplyMultirotorPhysicsControl(PhysicsControl);
+  }
+  return ECarlaServerResponse::Success;
+}
+
+ECarlaServerResponse FMultirotorActor::GetMultirotorPhysicsControl(FMultirotorPhysicsControl &PhysicsControl)
+{
+    if (IsDormant())
+    {
+        FMultirotorData* ActorData = GetActorData<FMultirotorData>();
+        PhysicsControl = ActorData->PhysicsControl;
+    }
+    else
+    {
+        auto Multirotor = Cast<AMultirotorPawn>(GetActor());
+        if (Multirotor == nullptr)
+        {
+          return ECarlaServerResponse::NotAVehicle;
+        }
+        PhysicsControl = Multirotor->GetMultirotorPhysicsControl();
+    }
+    return ECarlaServerResponse::Success;
+}
+
+ECarlaServerResponse FMultirotorActor::ApplyControlToMultirotor(
+      const FMultirotorControl& Control, const EVehicleInputPriority& Priority)
+{
+  if (IsDormant())
+  {
+    FMultirotorData* ActorData = GetActorData<FMultirotorData>();
+    ActorData->Control = Control;
+  }
+  else
+  {
+    auto Multirotor = Cast<AMultirotorPawn>(GetActor());
+    if (Multirotor == nullptr)
+    {
+      return ECarlaServerResponse::NotAVehicle;
+    }
+    Multirotor->ApplyMultirotorControl(Control);
+  }
+  return ECarlaServerResponse::Success;
+}
+
+ECarlaServerResponse FMultirotorActor::GetMultirotorControl(FMultirotorControl& Control)
+{
+  if (IsDormant())
+  {
+    FMultirotorData* ActorData = GetActorData<FMultirotorData>();
+    Control = ActorData->Control;
+  }
+  else
+  {
+    auto Multirotor = Cast<AMultirotorPawn>(GetActor());
+    if (Multirotor == nullptr)
+    {
+      return ECarlaServerResponse::NotAVehicle;
+    }
+    Control = Multirotor->GetMultirotorControl();
+  }
+  return ECarlaServerResponse::Success;
+}
+
+ECarlaServerResponse FMultirotorActor::SetActorSimulatePhysics(bool bEnabled)
+{
+  if (IsDormant())
+  {
+    ActorData->bSimulatePhysics = bEnabled;
+  }
+  else
+  {
+    auto* Multirotor = Cast<AMultirotorPawn>(GetActor());
+    // The physics in the vehicles works in a different way so to disable them.
+    if (Multirotor == nullptr){
+      return ECarlaServerResponse::NotAVehicle;
+    }
+    Multirotor->SetSimulatePhysics(bEnabled);
   }
   return ECarlaServerResponse::Success;
 }

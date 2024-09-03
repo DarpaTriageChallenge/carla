@@ -45,6 +45,8 @@
 #include <carla/rpc/LightState.h>
 #include <carla/rpc/MapInfo.h>
 #include <carla/rpc/MapLayer.h>
+#include <carla/rpc/MultirotorControl.h>
+#include <carla/rpc/MultirotorPhysicsControl.h>
 #include <carla/rpc/Response.h>
 #include <carla/rpc/Server.h>
 #include <carla/rpc/String.h>
@@ -2648,6 +2650,109 @@ BIND_SYNC(is_sensor_enabled_for_ros) << [this](carla::streaming::detail::stream_
       UEEndLocation = LargeMap->GlobalToLocalLocation(UEEndLocation);
     }
     return URayTracer::CastRay(StartLocation, EndLocation, World);
+  };
+
+  // ~~ Multirotor Vehicle ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+  BIND_SYNC(apply_multirotor_physics_control) << [this](
+      cr::ActorId ActorId,
+      cr::MultirotorPhysicsControl PhysicsControl) -> R<void>
+  {
+    REQUIRE_CARLA_EPISODE();
+    FCarlaActor* CarlaActor = Episode->FindCarlaActor(ActorId);
+    if (!CarlaActor)
+    {
+      return RespondError(
+          "apply_multirotor_physics_control",
+          ECarlaServerResponse::ActorNotFound,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    ECarlaServerResponse Response =
+        CarlaActor->ApplyMultirotorPhysicsControl(FMultirotorPhysicsControl(PhysicsControl));
+    if (Response != ECarlaServerResponse::Success)
+    {
+      return RespondError(
+          "apply_multirotor_physics_control",
+          Response,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    return R<void>::Success();
+  };
+
+  BIND_SYNC(get_multirotor_physics_control) << [this](
+      cr::ActorId ActorId) -> R<cr::MultirotorPhysicsControl>
+  {
+    REQUIRE_CARLA_EPISODE();
+    FCarlaActor* CarlaActor = Episode->FindCarlaActor(ActorId);
+        if (!CarlaActor)
+    {
+      return RespondError(
+          "get_multirotor_physics_control",
+          ECarlaServerResponse::ActorNotFound,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    FMultirotorPhysicsControl PhysicsControl;
+    ECarlaServerResponse Response =
+        CarlaActor->GetMultirotorPhysicsControl(PhysicsControl);
+    if (Response != ECarlaServerResponse::Success)
+    {
+      return RespondError(
+          "get_multirotor_physics_control",
+          Response,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    return cr::MultirotorPhysicsControl(PhysicsControl);
+  };
+
+  BIND_SYNC(apply_control_to_multirotor) << [this](
+      cr::ActorId ActorId,
+      cr::MultirotorControl Control) -> R<void>
+  {
+    REQUIRE_CARLA_EPISODE();
+
+    FCarlaActor* CarlaActor = Episode->FindCarlaActor(ActorId);
+    if (!CarlaActor)
+    {
+      return RespondError(
+          "apply_control_to_multirotor",
+          ECarlaServerResponse::ActorNotFound,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    ECarlaServerResponse Response =
+        CarlaActor->ApplyControlToMultirotor(Control, EVehicleInputPriority::Client);
+    if (Response != ECarlaServerResponse::Success)
+    {
+      return RespondError(
+          "apply_control_to_multirotor",
+          Response,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    return R<void>::Success();
+  };
+
+  BIND_SYNC(get_multirotor_control) << [this](
+      cr::ActorId ActorId) -> R<cr::MultirotorControl>
+  {
+    REQUIRE_CARLA_EPISODE();
+    FCarlaActor* CarlaActor = Episode->FindCarlaActor(ActorId);
+        if (!CarlaActor)
+    {
+      return RespondError(
+          "get_multirotor_control",
+          ECarlaServerResponse::ActorNotFound,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    FMultirotorControl Control;
+    ECarlaServerResponse Response =
+        CarlaActor->GetMultirotorControl(Control);
+    if (Response != ECarlaServerResponse::Success)
+    {
+      return RespondError(
+          "get_multirotor_control",
+          Response,
+          " Actor Id: " + FString::FromInt(ActorId));
+    }
+    return cr::MultirotorControl(Control);
   };
 
 }

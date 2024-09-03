@@ -159,6 +159,14 @@ static auto FWorldObserver_GetActorState(const FCarlaActor &View, const FActorRe
       }
     }
   }
+  else if (AType::Multirotor == View.GetActorType())
+  {
+    auto Multirotor = Cast<AMultirotorPawn>(View.GetActor());
+    if (Multirotor != nullptr)
+    {
+      state.multirotor_data.control = carla::rpc::MultirotorControl{Multirotor->GetMultirotorControl()};
+    }
+  }
   return state;
 }
 
@@ -237,6 +245,11 @@ static auto FWorldObserver_GetDormantActorState(const FCarlaActor &View, const F
     }
     std::memset(state.traffic_light_data.sign_id, '\0', max_size);
     std::memcpy(state.traffic_sign_data.sign_id, sign_id.c_str(), sign_id_length);
+  }
+  if (AType::Multirotor == View.GetActorType())
+  {
+      const FMultirotorData* ActorData = View.GetActorData<FMultirotorData>();
+      state.multirotor_data.control = carla::rpc::MultirotorControl{ActorData->Control};
   }
   return state;
 }

@@ -9,6 +9,17 @@
 
 #include <boost/python/suite/indexing/vector_indexing_suite.hpp>
 
+static std::vector<float> GetVectorOfFloatFromList(const boost::python::list &list) {
+  auto length = boost::python::len(list);
+  std::vector<float> v;
+  v.reserve(static_cast<size_t>(length));
+  for (auto i = 0u; i < length; ++i) {
+    boost::python::extract<float> ext(list[i]);
+    v.push_back(ext);
+  }
+  return v;
+}
+
 static auto GetVectorOfVector2DFromList(const boost::python::list &list) {
   std::vector<carla::geom::Vector2D> v;
 
@@ -211,6 +222,17 @@ boost::python::object WalkerBoneControl_init(boost::python::tuple args, boost::p
   return res;
 }
 
+static auto GetMultirotorThrottle(const carla::rpc::MultirotorControl &self){
+  const auto throttleVec = self.throttle;
+  boost::python::object get_iter = boost::python::iterator<std::vector<float>>();
+  boost::python::object iter = get_iter(throttleVec);
+  return boost::python::list(iter);
+}
+
+static void SetMultirotorThrottle(carla::rpc::MultirotorControl &self, const boost::python::list &list){
+  self.throttle = GetVectorOfFloatFromList(list);
+}
+
 void export_control() {
   using namespace boost::python;
   namespace cg = carla::geom;
@@ -234,6 +256,14 @@ void export_control() {
     .def_readwrite("gear", &cr::VehicleControl::gear)
     .def("__eq__", &cr::VehicleControl::operator==)
     .def("__ne__", &cr::VehicleControl::operator!=)
+    .def(self_ns::str(self_ns::self))
+  ;
+
+  class_<cr::MultirotorControl>("MultirotorControl")
+    .def(init<std::vector<float>>())
+    .add_property("throttle", &GetMultirotorThrottle, &SetMultirotorThrottle)
+    .def("__eq__", &cr::MultirotorControl::operator==)
+    .def("__ne__", &cr::MultirotorControl::operator!=)
     .def(self_ns::str(self_ns::self))
   ;
 

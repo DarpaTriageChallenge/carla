@@ -264,3 +264,27 @@ void FActorSensorData::RestoreActorData(FCarlaActor* CarlaActor, UCarlaEpisode* 
   ASensor* Sensor = Cast<ASensor>(Actor);
   Sensor->SetDataStream(std::move(Stream));
 }
+
+void FMultirotorData::RecordActorData(FCarlaActor* CarlaActor, UCarlaEpisode* CarlaEpisode)
+{
+  FActorData::RecordActorData(CarlaActor, CarlaEpisode);
+  AActor* Actor = CarlaActor->GetActor();
+  AMultirotorPawn* Multirotor = Cast<AMultirotorPawn>(Actor);
+  if (bSimulatePhysics)
+  {
+    PhysicsControl = Multirotor->GetMultirotorPhysicsControl();
+  }
+}
+
+void FMultirotorData::RestoreActorData(FCarlaActor* CarlaActor, UCarlaEpisode* CarlaEpisode)
+{
+  FActorData::RestoreActorData(CarlaActor, CarlaEpisode);
+  AActor* Actor = CarlaActor->GetActor();
+  AMultirotorPawn* Multirotor = Cast<AMultirotorPawn>(Actor);
+  Multirotor->SetSimulatePhysics(bSimulatePhysics);
+  if (bSimulatePhysics)
+  {
+    Multirotor->ApplyMultirotorPhysicsControl(PhysicsControl);
+  }
+  Multirotor->ApplyMultirotorControl(Control);
+}

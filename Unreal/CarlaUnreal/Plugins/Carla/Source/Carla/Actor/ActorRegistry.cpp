@@ -50,6 +50,10 @@ static FCarlaActor::ActorType FActorRegistry_GetActorType(const AActor *Actor)
   {
     return FCarlaActor::ActorType::Sensor;
   }
+  else if (nullptr != Cast<AMultirotorPawn>(Actor))
+  {
+    return FCarlaActor::ActorType::Multirotor;
+  }
   else
   {
     return FCarlaActor::ActorType::Other;

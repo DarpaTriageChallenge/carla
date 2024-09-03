@@ -6,6 +6,8 @@
 
 #include "ActorROS2Handler.h"
 
+#include "Carla/Multirotor/MultirotorPawn.h"
+#include "Carla/Multirotor/MultirotorControl.h"
 #include "Carla/Vehicle/CarlaWheeledVehicle.h"
 #include "Carla/Vehicle/VehicleControl.h"
 
@@ -27,6 +29,25 @@ void ActorROS2Handler::operator()(carla::ros2::VehicleControl &Source)
   NewControl.Gear = Source.gear;
 
   Vehicle->ApplyVehicleControl(NewControl, EVehicleInputPriority::User);
+}
+
+void ActorROS2Handler::operator()(carla::ros2::MultirotorControl &Source)
+{
+  if (!_Actor) return;
+
+  AMultirotorPawn *Multirotor = Cast<AMultirotorPawn>(_Actor);
+  if (!Multirotor) return;
+
+  // setup control values
+  FMultirotorControl NewControl;
+  TArray<float> newThrottle;
+  newThrottle.SetNumUninitialized(Source.throttle.size());
+  for (int i = 0; i < Source.throttle.size(); i++){
+    newThrottle[i] = Source.throttle[i];
+  }
+  NewControl.Throttle = newThrottle;
+
+  Multirotor->ApplyMultirotorControl(NewControl);
 }
 
 void ActorROS2Handler::operator()(carla::ros2::MessageControl Message)

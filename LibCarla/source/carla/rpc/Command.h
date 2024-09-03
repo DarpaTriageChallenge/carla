@@ -14,7 +14,9 @@
 #include "carla/rpc/TrafficLightState.h"
 #include "carla/rpc/VehicleAckermannControl.h"
 #include "carla/rpc/VehicleControl.h"
+#include "carla/rpc/MultirotorControl.h"
 #include "carla/rpc/VehiclePhysicsControl.h"
+#include "carla/rpc/MultirotorPhysicsControl.h"
 #include "carla/rpc/VehicleLightState.h"
 #include "carla/rpc/WalkerControl.h"
 
@@ -111,6 +113,16 @@ namespace rpc {
           physics_control(value) {}
       ActorId actor;
       VehiclePhysicsControl physics_control;
+      MSGPACK_DEFINE_ARRAY(actor, physics_control);
+    };
+
+    struct ApplyMultirotorPhysicsControl : CommandBase<ApplyMultirotorPhysicsControl> {
+      ApplyMultirotorPhysicsControl() = default;
+      ApplyMultirotorPhysicsControl(ActorId id, const MultirotorPhysicsControl &value)
+        : actor(id),
+          physics_control(value) {}
+      ActorId actor;
+      MultirotorPhysicsControl physics_control;
       MSGPACK_DEFINE_ARRAY(actor, physics_control);
     };
 

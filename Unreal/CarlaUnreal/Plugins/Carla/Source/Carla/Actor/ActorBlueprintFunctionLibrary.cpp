@@ -1285,6 +1285,61 @@ void UActorBlueprintFunctionLibrary::MakeVehicleDefinitions(
   FillActorDefinitionArray(ParameterArray, Definitions, &MakeVehicleDefinition);
 }
 
+void UActorBlueprintFunctionLibrary::MakeMultirotorDefinitions(
+    const TArray<FMultirotorParameters> &ParameterArray,
+    TArray<FActorDefinition> &Definitions)
+{
+  FillActorDefinitionArray(ParameterArray, Definitions, &MakeMultirotorDefinition);
+}
+
+void UActorBlueprintFunctionLibrary::MakeMultirotorDefinition(
+    const FMultirotorParameters &Parameters,
+    bool &Success,
+    FActorDefinition &Definition)
+{
+  /// @todo We need to validate here the params.
+  FillIdAndTags(Definition, TEXT("multirotor"), Parameters.Make, Parameters.Model);
+  AddRecommendedValuesForActorRoleName(Definition,
+      {TEXT("autopilot"), TEXT("scenario"), TEXT("ego_vehicle")});
+  Definition.Class = Parameters.Class;
+
+  if (Parameters.RecommendedColors.Num() > 0)
+  {
+    FActorVariation Colors;
+    Colors.Id = TEXT("color");
+    Colors.Type = EActorAttributeType::RGBColor;
+    Colors.bRestrictToRecommended = false;
+    for (auto &Color : Parameters.RecommendedColors)
+    {
+      Colors.RecommendedValues.Emplace(ColorToFString(Color));
+    }
+    Definition.Variations.Emplace(Colors);
+  }
+
+  Definition.Attributes.Emplace(FActorAttribute{
+    TEXT("object_type"),
+    EActorAttributeType::String,
+    Parameters.ObjectType});
+
+  Definition.Attributes.Emplace(FActorAttribute{
+    TEXT("number_of_rotors"),
+    EActorAttributeType::Int,
+    FString::FromInt(Parameters.NumberOfRotors)});
+  Success = CheckActorDefinition(Definition);
+
+  Definition.Attributes.Emplace(FActorAttribute{
+    TEXT("generation"),
+    EActorAttributeType::Int,
+    FString::FromInt(Parameters.Generation)});
+  Success = CheckActorDefinition(Definition);
+
+  Definition.Attributes.Emplace(FActorAttribute{
+    TEXT("control_type"),
+    EActorAttributeType::String,
+    "multirotor"});
+  Success = CheckActorDefinition(Definition);
+}
+
 void UActorBlueprintFunctionLibrary::MakePedestrianDefinition(
     const FPedestrianParameters &Parameters,
     bool &Success,

@@ -10,6 +10,7 @@
 #include "carla/geom/Vector3D.h"
 #include "carla/rpc/ActorId.h"
 #include "carla/rpc/ActorState.h"
+#include "carla/rpc/MultirotorControl.h"
 #include "carla/rpc/VehicleFailureState.h"
 #include "carla/rpc/TrafficLightState.h"
 #include "carla/rpc/VehicleControl.h"
@@ -67,6 +68,42 @@ namespace detail {
     rpc::VehicleFailureState failure_state;
   };
 #pragma pack(pop)
+
+#pragma pack(push, 1)
+  class PackedMultirotorControl {
+  public:
+
+    PackedMultirotorControl() = default;
+
+    PackedMultirotorControl(const rpc::MultirotorControl &control) :
+        size(control.throttle.size())
+    {
+        assert(control.throttle.size() <= 8u);
+        std::memcpy(throttle, control.throttle.data(), control.throttle.size());
+    }
+
+    operator rpc::MultirotorControl() const {
+        rpc::MultirotorControl control;
+        control.throttle.resize(size);
+        std::memcpy(control.throttle.data(), throttle, size);
+        return control;
+    }
+
+  private:
+    float throttle[8u];
+    size_t size;
+  };
+
+#pragma pack(pop)
+
+#pragma pack(push, 1)
+  struct MultirotorData {
+    MultirotorData() = default;
+
+    PackedMultirotorControl control;
+  };
+#pragma pack(pop)
+
 
 #pragma pack(push, 1)
   class PackedWalkerControl {
@@ -138,6 +175,7 @@ namespace detail {
     union TypeDependentState {
       detail::TrafficLightData traffic_light_data;
       detail::TrafficSignData traffic_sign_data;
+      detail::MultirotorData multirotor_data;
       detail::VehicleData vehicle_data;
       detail::PackedWalkerControl walker_control;
     } state;
