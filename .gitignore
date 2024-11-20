@@ -14,3 +14,8 @@ CMakeSettings.json
 .clangd
 
 Help.md
+
+#DTC Specific Ignores
+Unreal/CarlaUnreal/Plugins/dtc_plugin/
+dtc_docs/
+dtc_manager/
