@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include "carla/ros2/ROS2Interfaces.h"
 #include "carla/Buffer.h"
 #include "carla/BufferView.h"
 #include "carla/geom/Transform.h"
@@ -21,40 +20,38 @@
 namespace carla {
 namespace ros2 {
 
-class ROS2
+class ROS2;
+
+class ROS2Interfaces
 {
   public:
 
   // deleting copy constructor for singleton
-  ROS2(const ROS2& obj) = delete;
-  static std::shared_ptr<ROS2> GetInstance() {
+  ROS2Interfaces(const ROS2Interfaces& obj) = delete;
+  static std::shared_ptr<ROS2Interfaces> GetInstance() {
     if (!_instance)
-    {
-      _instance = std::shared_ptr<ROS2>(new ROS2);
-      auto ROS2Interfaces = carla::ros2::ROS2Interfaces::GetInstance();
-      ROS2Interfaces->RegisterInterface(_instance);
-    }
+      _instance = std::shared_ptr<ROS2Interfaces>(new ROS2Interfaces);
     return _instance;
   }
 
-  virtual ~ROS2() {};
-
   // general
-  virtual void Enable(bool enable) {};
-  virtual void Shutdown() {};
-  virtual bool IsEnabled() { return _enabled; }
-  virtual void SetFrame(uint64_t frame) {};
-  virtual void SetTimestamp(double timestamp) {};
+  void Enable(bool enabled);
+  void Shutdown();
+  void SetFrame(uint64_t frame);
+  void SetTimestamp(double timestamp);
+  void RegisterInterface(std::shared_ptr<ROS2> newInterface);
+  void UnregisterInterface(std::shared_ptr<ROS2> interfaceToRemove);
+  void CleanExpiredInterfaces();
 
   // singleton
-  ROS2() {};
+  ROS2Interfaces() {};
 
-  static std::shared_ptr<ROS2> _instance;
+  static std::shared_ptr<ROS2Interfaces> _instance;
 
-  bool _enabled { false };
-  uint64_t _frame { 0 };
-  int32_t _seconds { 0 };
-  uint32_t _nanoseconds { 0 };
+  private:
+  bool _enabled = false;
+  std::vector<std::weak_ptr<ROS2>> _interfaces;
+  
 
 };
 

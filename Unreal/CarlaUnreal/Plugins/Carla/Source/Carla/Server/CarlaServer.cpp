@@ -799,8 +799,8 @@ void FCarlaServer::FPimpl::BindActions()
     ParentCarlaActor->AddChildren(CarlaActor->GetActorId());
 
     #if defined(WITH_ROS2)
-    auto ROS2 = carla::ros2::ROS2::GetInstance();
-    if (ROS2->IsEnabled())
+    auto ROS2Carla = carla::ros2::ROS2Carla::GetInstance();
+    if (ROS2Carla->IsEnabled())
     {
       FCarlaActor* CurrentActor = ParentCarlaActor;
       while(CurrentActor)
@@ -810,7 +810,7 @@ void FCarlaServer::FPimpl::BindActions()
           if (Attr.Key == "ros_name")
           {
             const std::string value = std::string(TCHAR_TO_UTF8(*Attr.Value.Value));
-            ROS2->AddActorParentRosName(static_cast<void*>(CarlaActor->GetActor()), static_cast<void*>(CurrentActor->GetActor()));
+            ROS2Carla->AddActorParentRosName(static_cast<void*>(CarlaActor->GetActor()), static_cast<void*>(CurrentActor->GetActor()));
           }
         }
         CurrentActor = Episode->FindCarlaActor(CurrentActor->GetParent());

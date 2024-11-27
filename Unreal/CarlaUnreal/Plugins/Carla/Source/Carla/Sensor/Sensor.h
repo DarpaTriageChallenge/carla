@@ -21,6 +21,7 @@
 #include <util/ue-header-guard-begin.h>
 #include "GameFramework/Actor.h"
 #include <util/ue-header-guard-end.h>
+#include <carla/ros2/ROS2Carla.h>
 
 #include "Sensor.generated.h"
 
@@ -204,12 +205,12 @@ protected:
     auto BufferView = carla::BufferView::CreateFrom(std::move(SerializedBuffer));
 
 #if defined(WITH_ROS2)
-    auto ROS2 = carla::ros2::ROS2::GetInstance();
-    if (ROS2->IsEnabled())
+    auto ROS2Carla = carla::ros2::ROS2Carla::GetInstance();
+    if (ROS2Carla->IsEnabled())
     {
       TRACE_CPUPROFILER_EVENT_SCOPE_STR("ROS2 SendDataToClient");
       auto StreamId = carla::streaming::detail::token_type(Sensor.GetToken()).get_stream_id();
-      auto Res = std::async(std::launch::async, [&Sensor, ROS2, &Stream, StreamId, BufferView]()
+      auto Res = std::async(std::launch::async, [&Sensor, ROS2Carla, &Stream, StreamId, BufferView]()
       {
         // get resolution of camera
         int W = -1, H = -1;
@@ -229,7 +230,7 @@ protected:
           ParentActor ?
           Sensor.GetActorTransform().GetRelativeTransform(ParentActor->GetActorTransform()) :
           Stream.GetSensorTransform();
-        ROS2->ProcessDataFromCamera(
+        ROS2Carla->ProcessDataFromCamera(
           Stream.GetSensorType(),
           StreamId,
           Transform,
