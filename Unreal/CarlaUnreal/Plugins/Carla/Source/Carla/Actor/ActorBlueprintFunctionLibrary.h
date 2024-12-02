@@ -26,7 +26,7 @@ struct FLidarDescription;
 struct FActorDescription;
 
 UCLASS()
-class UActorBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
+class CARLA_API UActorBlueprintFunctionLibrary : public UBlueprintFunctionLibrary
 {
   GENERATED_BODY()
 
