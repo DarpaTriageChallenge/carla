@@ -18,6 +18,8 @@
 #include <memory>
 #include <vector>
 
+class FActorDescription;
+
 namespace carla {
 namespace ros2 {
 
@@ -45,6 +47,8 @@ class ROS2
   virtual bool IsEnabled() { return _enabled; }
   virtual void SetFrame(uint64_t frame) {};
   virtual void SetTimestamp(double timestamp) {};
+  virtual void RegisterActor(FActorDescription& Description, std::string RosName, void* Actor) {};
+  virtual void RemoveActor(void* Actor) {};
 
   // singleton
   ROS2() {};

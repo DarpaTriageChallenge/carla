@@ -17,6 +17,9 @@
 #include <memory>
 #include <vector>
 
+
+class FActorDescription;
+
 namespace carla {
 namespace ros2 {
 
@@ -40,6 +43,8 @@ class ROS2Interfaces
   void SetFrame(uint64_t frame);
   void SetTimestamp(double timestamp);
   void RegisterInterface(std::shared_ptr<ROS2> newInterface);
+  void RegisterActorWithInterfaces(FActorDescription& Description, std::string RosName, void* Actor);
+  void RemoveActorFromInterfaces(void* Actor);
   void UnregisterInterface(std::shared_ptr<ROS2> interfaceToRemove);
   void CleanExpiredInterfaces();
 
@@ -51,7 +56,6 @@ class ROS2Interfaces
   private:
   bool _enabled = false;
   std::vector<std::weak_ptr<ROS2>> _interfaces;
-  
 
 };
 

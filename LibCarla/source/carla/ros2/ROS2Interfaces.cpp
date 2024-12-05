@@ -135,6 +135,46 @@ void ROS2Interfaces::SetTimestamp(double timestamp)
   }
 }
 
+void ROS2Interfaces::RegisterActorWithInterfaces(FActorDescription& Description, std::string RosName, void* Actor)
+{
+  bool needToCleanInterfaces = false;
+  for (std::weak_ptr<ROS2> interfaceWeakPtr : _interfaces)
+  {
+    if (std::shared_ptr<ROS2> interfacePtr = interfaceWeakPtr.lock())
+    {
+      interfacePtr->RegisterActor(Description, RosName, Actor);
+    }
+    else
+    {
+      needToCleanInterfaces = true;
+    }
+  }
+  if (needToCleanInterfaces)
+  {
+    CleanExpiredInterfaces();
+  }
+}
+
+void ROS2Interfaces::RemoveActorFromInterfaces(void* Actor)
+{
+  bool needToCleanInterfaces = false;
+  for (std::weak_ptr<ROS2> interfaceWeakPtr : _interfaces)
+  {
+    if (std::shared_ptr<ROS2> interfacePtr = interfaceWeakPtr.lock())
+    {
+      interfacePtr->RemoveActor(Actor);
+    }
+    else
+    {
+      needToCleanInterfaces = true;
+    }
+  }
+  if (needToCleanInterfaces)
+  {
+    CleanExpiredInterfaces();
+  }
+}
+
 void ROS2Interfaces::RegisterInterface(std::shared_ptr<ROS2> newInterface)
 {
   _interfaces.push_back(newInterface);

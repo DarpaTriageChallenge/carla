@@ -115,5 +115,11 @@ void UMultirotorBlueprintHelpers::MakeMultirotorDefinition(
     TEXT("generation"),
     EActorAttributeType::Int,
     FString::FromInt(Parameters.Generation)});
+
+  Definition.Attributes.Emplace(FActorAttribute{
+    TEXT("control_type"),
+    EActorAttributeType::String,
+    "multirotor"});
+
   Success = UActorBlueprintFunctionLibrary::CheckActorDefinition(Definition);
 }

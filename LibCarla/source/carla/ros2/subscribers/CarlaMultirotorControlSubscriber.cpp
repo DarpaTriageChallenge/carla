@@ -1,10 +1,10 @@
 #define _GLIBCXX_USE_CXX11_ABI 0
 
-#include "CarlaEgoVehicleControlSubscriber.h"
+#include "CarlaMultirotorControlSubscriber.h"
 
-#include "carla/ros2/types/CarlaEgoVehicleControl.h"
-#include "carla/ros2/types/CarlaEgoVehicleControlPubSubTypes.h"
-#include "carla/ros2/listeners/CarlaVehicleSubscriberListener.h"
+#include "carla/ros2/types/CarlaMultirotorControl.h"
+#include "carla/ros2/types/CarlaMultirotorControlPubSubTypes.h"
+#include "carla/ros2/listeners/CarlaMultirotorSubscriberListener.h"
 
 #include <fastdds/dds/domain/DomainParticipant.hpp>
 #include <fastdds/dds/subscriber/Subscriber.hpp>
@@ -30,21 +30,21 @@ namespace ros2 {
   namespace efd = eprosima::fastdds::dds;
   using erc = eprosima::fastrtps::types::ReturnCode_t;
 
-  struct CarlaEgoVehicleControlSubscriberImpl {
+  struct CarlaMultirotorControlSubscriberImpl {
     efd::DomainParticipant* _participant { nullptr };
     efd::Subscriber* _subscriber { nullptr };
     efd::Topic* _topic { nullptr };
     efd::DataReader* _datareader { nullptr };
-    efd::TypeSupport _type { new carla_msgs::msg::CarlaEgoVehicleControlPubSubType() };
-    CarlaVehicleSubscriberListener _listener {nullptr};
-    carla_msgs::msg::CarlaEgoVehicleControl _event {};
-    VehicleControl _control {};
+    efd::TypeSupport _type { new carla_msgs::msg::CarlaMultirotorControlPubSubType() };
+    CarlaMultirotorSubscriberListener _listener {nullptr};
+    carla_msgs::msg::CarlaMultirotorControl _event {};
+    MultirotorControl _control {};
     bool _new_message {false};
     bool _alive {true};
-    void* _vehicle {nullptr};
+    void* _multirotor {nullptr};
   };
 
-  bool CarlaEgoVehicleControlSubscriber::Init() {
+  bool CarlaMultirotorControlSubscriber::Init() {
     if (_impl->_type == nullptr) {
         std::cerr << "Invalid TypeSupport" << std::endl;
         return false;
@@ -69,7 +69,7 @@ namespace ros2 {
 
     efd::TopicQos tqos = efd::TOPIC_QOS_DEFAULT;
     const std::string base { "rt/carla/" };
-    const std::string publisher_type {"/vehicle_control_cmd"};
+    const std::string publisher_type {"/multirotor_control_cmd"};
     std::string topic_name = base;
     if (!_parent.empty())
       topic_name += _parent + "/";
@@ -91,7 +91,7 @@ namespace ros2 {
     return true;
   }
 
-  bool CarlaEgoVehicleControlSubscriber::Read() {
+  bool CarlaMultirotorControlSubscriber::Read() {
     efd::SampleInfo info;
     eprosima::fastrtps::types::ReturnCode_t rcode = _impl->_datareader->take_next_sample(&_impl->_event, &info);
     if (rcode == erc::ReturnCodeValue::RETCODE_OK) {
@@ -153,41 +153,41 @@ namespace ros2 {
     return false;
   }
 
-  void CarlaEgoVehicleControlSubscriber::ForwardMessage(VehicleControl control) {
+  void CarlaMultirotorControlSubscriber::ForwardMessage(MultirotorControl control) {
     _impl->_control = control;
     _impl->_new_message = true;
   }
 
-  void CarlaEgoVehicleControlSubscriber::DestroySubscriber() {
+  void CarlaMultirotorControlSubscriber::DestroySubscriber() {
     _impl->_alive = false;
   }
 
-  VehicleControl CarlaEgoVehicleControlSubscriber::GetMessage() {
+  MultirotorControl CarlaMultirotorControlSubscriber::GetMessage() {
     _impl->_new_message = false;
     return _impl->_control;
   }
 
-  bool CarlaEgoVehicleControlSubscriber::IsAlive() {
+  bool CarlaMultirotorControlSubscriber::IsAlive() {
     return _impl->_alive;
   }
 
-  bool CarlaEgoVehicleControlSubscriber::HasNewMessage() {
+  bool CarlaMultirotorControlSubscriber::HasNewMessage() {
     return _impl->_new_message;
   }
 
-  void* CarlaEgoVehicleControlSubscriber::GetVehicle() {
-    return _impl->_vehicle;
+  void* CarlaMultirotorControlSubscriber::GetMultirotor() {
+    return _impl->_multirotor;
   }
 
-  CarlaEgoVehicleControlSubscriber::CarlaEgoVehicleControlSubscriber(void* vehicle, const char* ros_name, const char* parent) :
-  _impl(std::make_shared<CarlaEgoVehicleControlSubscriberImpl>()) {
+  CarlaMultirotorControlSubscriber::CarlaMultirotorControlSubscriber(void* multirotor, const char* ros_name, const char* parent) :
+  _impl(std::make_shared<CarlaMultirotorControlSubscriberImpl>()) {
     _impl->_listener.SetOwner(this);
-    _impl->_vehicle = vehicle;
+    _impl->_multirotor = multirotor;
     _name = ros_name;
     _parent = parent;
   }
 
-  CarlaEgoVehicleControlSubscriber::~CarlaEgoVehicleControlSubscriber() {
+  CarlaMultirotorControlSubscriber::~CarlaMultirotorControlSubscriber() {
       if (!_impl)
           return;
 
@@ -204,7 +204,7 @@ namespace ros2 {
           efd::DomainParticipantFactory::get_instance()->delete_participant(_impl->_participant);
   }
 
-  CarlaEgoVehicleControlSubscriber::CarlaEgoVehicleControlSubscriber(const CarlaEgoVehicleControlSubscriber& other) {
+  CarlaMultirotorControlSubscriber::CarlaMultirotorControlSubscriber(const CarlaMultirotorControlSubscriber& other) {
     _frame_id = other._frame_id;
     _name = other._name;
     _parent = other._parent;
@@ -212,7 +212,7 @@ namespace ros2 {
     _impl->_listener.SetOwner(this);
   }
 
-  CarlaEgoVehicleControlSubscriber& CarlaEgoVehicleControlSubscriber::operator=(const CarlaEgoVehicleControlSubscriber& other) {
+  CarlaMultirotorControlSubscriber& CarlaMultirotorControlSubscriber::operator=(const CarlaMultirotorControlSubscriber& other) {
     _frame_id = other._frame_id;
     _name = other._name;
     _parent = other._parent;
@@ -222,7 +222,7 @@ namespace ros2 {
     return *this;
   }
 
-  CarlaEgoVehicleControlSubscriber::CarlaEgoVehicleControlSubscriber(CarlaEgoVehicleControlSubscriber&& other) {
+  CarlaMultirotorControlSubscriber::CarlaMultirotorControlSubscriber(CarlaMultirotorControlSubscriber&& other) {
     _frame_id = std::move(other._frame_id);
     _name = std::move(other._name);
     _parent = std::move(other._parent);
@@ -230,7 +230,7 @@ namespace ros2 {
     _impl->_listener.SetOwner(this);
   }
 
-  CarlaEgoVehicleControlSubscriber& CarlaEgoVehicleControlSubscriber::operator=(CarlaEgoVehicleControlSubscriber&& other) {
+  CarlaMultirotorControlSubscriber& CarlaMultirotorControlSubscriber::operator=(CarlaMultirotorControlSubscriber&& other) {
     _frame_id = std::move(other._frame_id);
     _name = std::move(other._name);
     _parent = std::move(other._parent);

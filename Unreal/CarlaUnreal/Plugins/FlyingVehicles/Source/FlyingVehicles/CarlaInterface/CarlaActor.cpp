@@ -5,7 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "CarlaActor.h"
-#include "MultirotorPawn.h"
+#include "FlyingVehicles/MultirotorPawn.h"
 
 const FString FMultirotorActor::CustomType = "FlyingVehicle_Multirotor";
 

@@ -7,8 +7,8 @@
 #pragma once
 
 #include "Carla/Actor/ActorData.h"
-#include "MultirotorControl.h"
-#include "MultirotorPhysicsControl.h"
+#include "FlyingVehicles/MultirotorControl.h"
+#include "FlyingVehicles/MultirotorPhysicsControl.h"
 
 
 class FMultirotorData : public FActorData

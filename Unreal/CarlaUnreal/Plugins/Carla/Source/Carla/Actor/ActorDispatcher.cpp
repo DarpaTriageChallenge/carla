@@ -17,10 +17,16 @@
 #ifdef WITH_ROS2
   #include <util/disable-ue4-macros.h>
   #include <carla/ros2/ROS2Carla.h>
+  #include <carla/ros2/ROS2Interfaces.h>
   #include <util/enable-ue4-macros.h>
   #include <variant>
 #endif
 #include <util/ue-header-guard-end.h>
+
+std::shared_ptr<carla::ros2::ROS2Interfaces> UActorDispatcher::GetInterfaces()
+{
+  return carla::ros2::ROS2Interfaces::GetInstance();
+}
 
 void UActorDispatcher::Bind(FActorDefinition Definition, SpawnFunctionType Functor)
 {
@@ -156,6 +162,11 @@ bool UActorDispatcher::DestroyActor(FCarlaActor::IdType ActorId)
     }
   }
 
+  #ifdef WITH_ROS2
+  auto ROS2 = carla::ros2::ROS2Interfaces::GetInstance();
+  ROS2->RemoveActorFromInterfaces(reinterpret_cast<void *>(Actor));
+  #endif
+
   Registry.Deregister(ActorId);
 
   return true;
@@ -225,6 +236,11 @@ FCarlaActor* UActorDispatcher::RegisterActor(
           #endif
         }
       }
+
+      auto ROS2Interfaces = carla::ros2::ROS2Interfaces::GetInstance();
+      ROS2Interfaces->RegisterActorWithInterfaces(Description, RosName, static_cast<void*>(&Actor));
+      
+
     }
     #endif
   }

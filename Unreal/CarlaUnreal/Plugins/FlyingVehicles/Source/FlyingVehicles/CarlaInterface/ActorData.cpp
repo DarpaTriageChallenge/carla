@@ -5,7 +5,7 @@
 // For a copy, see <https://opensource.org/licenses/MIT>.
 
 #include "ActorData.h"
-#include "MultirotorPawn.h"
+#include "FlyingVehicles/MultirotorPawn.h"
 #include "Carla/Actor/CarlaActor.h"
 
 
