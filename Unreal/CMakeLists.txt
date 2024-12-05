@@ -573,12 +573,15 @@ carla_add_custom_target (
   launch
   "Build and open CARLA in the Unreal Editor."
   ${CARLA_LAUNCH_TARGET_OPTIONS}
+  DEPENDS fastdds
 )
 
 add_dependencies (
   launch
   carla-unreal-editor
   check-unreal-content
+  fastdds
+  carla-ros2-native
 )
 
 set_property (
